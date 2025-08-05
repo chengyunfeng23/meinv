@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>各类美女视频</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+        video {
+            width: 100vw;
+            height: 100vh;
+            margin:  0 auto;
+        }
+        button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <button>刷新</button>
+    <video controls ></video>
+    <!--  -->
+    <script>
+          const video = document.querySelector('video');
+        // 请求post请求
+       function fetchVideo() {
+            axios.get('https://api.kuleu.com/api/MP4_xiaojiejie?type=json', {})
+                .then((res) => {
+                  
+                    video.src = res.data.mp4_video;
+                    video.play();
+                })
+                .catch((error) => {
+                    console.error('Error fetching video:', error);
+                });
+        }
+        // video播放完后
+        video.addEventListener('ended', fetchVideo);
+        // 页面加载时获取视频
+       fetchVideo();
+
+        // 刷新按钮
+        document.querySelector('button').addEventListener('click', fetchVideo);
+    </script>
+</body>
+
+</html>
