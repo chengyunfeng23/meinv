@@ -12,34 +12,33 @@
             margin: 0;
             box-sizing: border-box;
         }
+
         video {
             width: 100vw;
-            height: 100vh;
-            margin:  0 auto;
+            height: 90vh;
+            margin: 0 auto;
         }
-        button {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            padding: 10px 20px;
+
+        .btn1,
+        .btn2 {
+            padding: 5px 10px;
             font-size: 16px;
-            cursor: pointer;
-            z-index:9999;
         }
     </style>
 </head>
 
 <body>
-    <button>刷新</button>
-    <video controls ></video>
+    <button class='btn2'>下载视频</button>
+    <button class='btn1'>刷新视频</button>
+    <video controls></video>
     <!--  -->
     <script>
-          const video = document.querySelector('video');
+        const video = document.querySelector('video');
         // 请求post请求
-       function fetchVideo() {
+        function fetchVideo() {
             axios.get('https://api.kuleu.com/api/MP4_xiaojiejie?type=json', {})
                 .then((res) => {
-                  
+
                     video.src = res.data.mp4_video;
                     video.play();
                 })
@@ -50,10 +49,49 @@
         // video播放完后
         video.addEventListener('ended', fetchVideo);
         // 页面加载时获取视频
-       fetchVideo();
+        fetchVideo();
 
         // 刷新按钮
-        document.querySelector('button').addEventListener('click', fetchVideo);
+        document.querySelector('.btn1').addEventListener('click', fetchVideo);
+        document.querySelector('.btn2').addEventListener('click', async () => {
+            try {
+                const video = document.querySelector('video');
+                if (!video || !video.src) throw new Error('视频源不存在');
+
+                // 显示加载状态
+                const btn = document.querySelector('.btn2');
+                btn.disabled = true;
+                btn.textContent = '下载中...';
+
+                // 获取视频数据
+                const response = await fetch(video.src);
+                if (!response.ok) throw new Error('下载失败: ' + response.status);
+
+                const blob = await response.blob();
+                const blobUrl = URL.createObjectURL(blob);
+
+                // 创建下载链接
+                const link = document.createElement('a');
+                link.href = blobUrl;
+                link.download = '我的视频.mp4'; // 设置文件名
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+
+                // 清理
+                setTimeout(() => {
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(blobUrl);
+                    btn.disabled = false;
+                    btn.textContent = '下载视频';
+                }, 100);
+
+            } catch (error) {
+                console.error('下载错误:', error);
+                alert(error.message);
+                document.querySelector('.btn2').disabled = false;
+            }
+        });
     </script>
 </body>
 
